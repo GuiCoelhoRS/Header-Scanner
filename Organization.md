@@ -9,3 +9,9 @@ Installing the requests librar : `pip install requests`
 Create the requirements.txt : `pip freeze > requirements.txt`
 
 - The file requirements.txt contains the tools that the requests library has for it to work. 
+
+
+### 1 º Phase of the Build
+- Receive an URL (harcoded for now)
+- Do an HTTP Request to that URL
+- Show the headers of the answer on the CLI
