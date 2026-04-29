@@ -1,15 +1,18 @@
 import requests 
 
+
 r = requests.get('https://github.com/')
 
 ## Show the Status Code of the URL
-print("----------------Status Code------------------")
-firstComment = f"This {r.url} has a status of {r}"
-print(firstComment)
+print("=== Status Code ===")
+print(f"URL : {r.url} ")
+print(f"Status Code: {r.status_code}")
+
 
 ## Showing the headers 
-print("----------------Headers------------------")
-for k,i in r.items():
-    print(k.headers)
+print("=== Headers ===")
+for nome_header,valor in r.headers.items():
+    print(nome_header,":",valor)
 
 
+print(len(r.headers))
