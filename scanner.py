@@ -2,6 +2,8 @@ import requests
 
 # =============================== Global Variables ===============================
 
+# === URLS for Testing ===
+
 # URL = 'https://github.com/'
 # URL = 'https://site-que-nao-existe-12345.pt/' 
 # URL = 'https://httpstat.us/200?sleep=15000'
@@ -22,11 +24,42 @@ SECURITY_HEADERS = [
 ]    
 
 # =============================== Functions for Reports  ===============================
-# def analyze_x_content_type_options():
 
+# ============= Function to analyze the Security Header X-Content-Type-Options =============
+# This header helps us avoid MIME Type Sniffing
+def analyze_x_content_type_options(value):
+    normalized = value.strip().lower()
+    if normalized == "nosniff":
+        return "A", "Correctly configured with 'nosniff'"
+    else :
+        return "F", "Invalid value. Should be 'nosniff'"
+    
+# ============= Function to analyze the Security Header X-Frame-Options =============
+#
+def analyze_x_frame_options(value):
+    # To catch duplicate headers it happened when I was testing so I added this case
+    if "," in value:
+        return "F", f"Multiple/duplicate values detected: {value}"
+    
+    normalized = value.strip().lower()
+
+    if normalized == "deny":
+        return "A","It will never be loaded in an iframe"
+    elif normalized == "sameorigin":
+        return "B","It has to be an iframe from the same origin"
+    elif normalized.startswith("allow-from"):
+        return "C","Deprecated, ignored by modern browsers"
+    else :
+        return "F","Invalid value. Should be DENY or SAMEORIGIN"
+    
+# ============= Function to analyse the Security Header Referrer-Policy =============
+# This header controls the information that is send when we click on a link to other website
+def analyze_referrer_policy(value):
+    print()
 
 
 # =============================== Main Program  ===============================
+
 
 try:
     r = requests.get(URL, timeout=TIMEOUT)
@@ -51,8 +84,19 @@ try:
     countSH = 0
     for s in SECURITY_HEADERS :
         if s in r.headers:
-            print(f"✅ {s}: {r.headers[s]}")
+            value = r.headers[s]
+            print(f"✅ {s}: {value}")
             countSH = countSH + 1
+
+            # Report for X-Content-Type-Options
+            if s == "X-Content-Type-Options":
+                grade, message = analyze_x_content_type_options(value)
+                print(f"   ↳ Grade: {grade} — {message}")
+            
+            # Report for X-Frame-Options
+            if s == "X-Frame-Options":
+                grade, message = analyze_x_frame_options(value)
+                print(f"   ↳ Grade: {grade} — {message}")
         else :
             print(f"❌ {s}: MISSING")
     
