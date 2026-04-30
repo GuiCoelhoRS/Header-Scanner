@@ -42,3 +42,19 @@ RequestException (main)
 │   └── ReadTimeout
 ├── HTTPError
 └── ...
+
+
+### 2º Phase of the Build
+- Instead of showing all the headers only show the 6 main headers 
+- Report if there is the main security headers or not 
+- Print the headers and a checklist of whats correct and whats missing
+
+**6º Essential Security Headers**
+- Content Security Policy (CSP)
+- Strict-Transport-Security (HSTS)
+- X-Frame-Options 
+- X-Content-Type-Options
+- Referrer-Policy
+- Permissions-Policy
+
+- Create a list with the security headers and look for them in the r.headers() so we can see what we have.
