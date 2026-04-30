@@ -62,19 +62,3 @@ RequestException (main)
 
 ### 3º Phase of the Build
 - Create a better report for each Security Header with a function for each one
-
-- Analizying the X-CONTENT-TYPE-OPTIONS Header
-    - It only has one value `nosniff`
-    - If it has the value - Grade : A
-    - If not - Grade : F
-    - This header secures `MIME-type sniffing` (browser tries to guess a file)
-    
-
-- Analizying the X-Frame-Options Header
-    - 3 possible values : DENY (Grade: A)
-                          SAMEORIGIN (Grade: B)
-                          ALLOW-FORM (Grade: C, Deprecated)
-                          Other -> F
-
-- 
-
