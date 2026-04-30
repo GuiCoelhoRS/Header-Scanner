@@ -6,7 +6,9 @@ import requests
 # URL = 'https://site-que-nao-existe-12345.pt/' 
 # URL = 'https://httpstat.us/200?sleep=15000'
 # URL = 'https://example.com/'
-URL = 'https://pypi.org/'
+# URL = 'https://pypi.org/'
+# URL = 'https://www.ulusofona.pt/' 
+URL = 'https://www.bancomontepio.pt/'
 
 TIMEOUT = 10
 
@@ -18,6 +20,11 @@ SECURITY_HEADERS = [
     "Permissions-Policy",
     "Referrer-Policy",  
 ]    
+
+# =============================== Functions for Reports  ===============================
+# def analyze_x_content_type_options():
+
+
 
 # =============================== Main Program  ===============================
 
