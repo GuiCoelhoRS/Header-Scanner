@@ -4,13 +4,13 @@ import requests
 
 # === URLS for Testing ===
 
-# URL = 'https://github.com/'
+URL = 'https://github.com/'
 # URL = 'https://site-que-nao-existe-12345.pt/' 
 # URL = 'https://httpstat.us/200?sleep=15000'
 # URL = 'https://example.com/'
 # URL = 'https://pypi.org/'
 # URL = 'https://www.ulusofona.pt/' 
-URL = 'https://www.bancomontepio.pt/'
+# URL = 'https://www.bancomontepio.pt/'
 
 TIMEOUT = 10
 
@@ -55,7 +55,25 @@ def analyze_x_frame_options(value):
 # ============= Function to analyse the Security Header Referrer-Policy =============
 # This header controls the information that is send when we click on a link to other website
 def analyze_referrer_policy(value):
-    print()
+    if "," in value:
+        value = value.split(",")[0]
+
+    normalized = value.strip().lower()
+
+    if normalized == "no-referrer":
+        return "A+","Never sends a referrer"
+    elif normalized in ("same-origin","strict-origin","strict-origin-when-cross-origin"):
+        return "A", "Strong privacy protection"
+    elif normalized == "no-referrer-when-downgrade":
+        return "B", "Default for older browsers"
+    elif normalized == "origin":
+        return "B", "Always sends the origin"
+    elif normalized == "origin-when-cross-origin":
+        return "C","Leaks path on same-origin requests"
+    elif normalized == "unsafe-url":
+        return "F","Privacy risk — leaks full URL even on HTTPS to HTTP"
+    else :
+        return "F", f"Invalid or unknown value: {value}"
 
 
 # =============================== Main Program  ===============================
@@ -96,6 +114,11 @@ try:
             # Report for X-Frame-Options
             if s == "X-Frame-Options":
                 grade, message = analyze_x_frame_options(value)
+                print(f"   ↳ Grade: {grade} — {message}")
+
+            # Report for Referrer-Policy
+            if s == "Referrer-Policy":
+                grade, message = analyze_referrer_policy(value)
                 print(f"   ↳ Grade: {grade} — {message}")
         else :
             print(f"❌ {s}: MISSING")

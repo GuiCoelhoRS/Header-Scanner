@@ -62,3 +62,4 @@ RequestException (main)
 
 ### 3º Phase of the Build
 - Create a better report for each Security Header with a function for each one
+- And start creating testes with pytest 
