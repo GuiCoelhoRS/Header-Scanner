@@ -1,4 +1,5 @@
 import requests 
+import argparse 
 
 ## Imports for the needed functions ==============================================================================================================================================
 from config import TIMEOUT, SECURITY_HEADERS
@@ -18,12 +19,18 @@ from analyzers import (
 # URL = 'https://site-que-nao-existe-12345.pt/' 
 # URL = 'https://httpstat.us/200?sleep=15000'
 # URL = 'https://example.com/'
-URL = 'https://pypi.org/'
+# URL = 'https://pypi.org/'
 # URL = 'https://www.ulusofona.pt/' 
 # URL = 'https://www.bancomontepio.pt/'
 
+## Argument and CLI Support Very Simple for now 
+parser = argparse.ArgumentParser(
+    description="Audit HTTP security headers of a website."
+)
+parser.add_argument("url", help="The URL to scan (e.g. https://github.com)")
+args = parser.parse_args()
 
-
+URL = args.url
 
 
 # Main Program Loop ==============================================================================================================================================
