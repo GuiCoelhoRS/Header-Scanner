@@ -174,10 +174,10 @@ Grading focuses on the `script-src` directive (with `default-src` as fallback), 
 - [x] Quality analysis for `Content-Security-Policy`
 - [x] Modular architecture (config / analyzers / scanner)
 - [ ] Refactor analyzer dispatch using a function dictionary
-- [ ] Accept URL as a CLI argument (argparse)
+- [x] Accept URL as a CLI argument (argparse)
 - [ ] Support for batch scanning of multiple URLs
 - [ ] JSON and HTML report output formats
-- [ ] Unit tests with pytest
+- [/] Unit tests with pytest
 - [ ] Asynchronous requests for parallel scanning
 
 ## Tech stack
