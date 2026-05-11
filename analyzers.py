@@ -19,8 +19,6 @@ def analyze_x_content_type_options(value):
         return "F", "Invalid value. Should be 'nosniff'"
     
 
-
-
 # ============= Function to analyze the Security Header X-Frame-Options =============
 #
 def analyze_x_frame_options(value):
@@ -39,9 +37,6 @@ def analyze_x_frame_options(value):
     else :
         return "F","Invalid value. Should be DENY or SAMEORIGIN"
     
-
-
-
 
 # ============= Function to analyse the Security Header Referrer-Policy =============
 # This header controls the information that is send when we click on a link to other website
@@ -67,13 +62,10 @@ def analyze_referrer_policy(value):
         return "F", f"Invalid or unknown value: {value}"
     
 
-
-
 # ============= Function to analyse the Security Header Strict_Transport_Security =============
 # Normal Structure : Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-# 
 def analyze_strict_transport_security(value):
-    has_includeSubDomains = False
+    has_include_subDomains = False
     has_preload = False
     max_age = None
     
@@ -82,7 +74,7 @@ def analyze_strict_transport_security(value):
         normalized = part.strip().lower()
 
         if normalized == "includesubdomains":
-            has_includeSubDomains = True
+            has_include_subDomains = True
         elif normalized == "preload":
             has_preload = True
         elif normalized.startswith("max-age="):
@@ -94,9 +86,9 @@ def analyze_strict_transport_security(value):
 
     if max_age is None:
         return "F","Missing or Invalid Max-Age"
-    elif max_age >= ONE_YEAR_IN_SECONDS and has_includeSubDomains and has_preload:
+    elif max_age >= ONE_YEAR_IN_SECONDS and has_include_subDomains and has_preload:
         return "A+", "Maximum protection (preload-eligible)"
-    elif max_age >= ONE_YEAR_IN_SECONDS and has_includeSubDomains:
+    elif max_age >= ONE_YEAR_IN_SECONDS and has_include_subDomains:
         return "A", "Strong; subdomains protected"
     elif max_age >= SIX_MONTHS_IN_SECONDS :
         return "A", "Acceptable strong configuration"
@@ -105,12 +97,9 @@ def analyze_strict_transport_security(value):
     return "D", "max-age too short to be effective"
 
 
-
-
 # ============= Function to analyse the Security Header Permissions-Policy =============
 # Structure of the Value : Permissions-Policy: camera=(), microphone=(), geolocation=(self)
 # This header lets a site say "I don't need to access to X,Y browser APIs - disable them" so even if someone attacks the website calls to those APIs will fail
-
 def analyze_permissions_policy(value):
     parts = value.split(",")
     count_disabled_features = 0
@@ -134,9 +123,6 @@ def analyze_permissions_policy(value):
     if count_disabled_features >= 1:
         return "C", f"Limited protection ({count_disabled_features} sensitive features disabled)"
     return "D", "Header present but very permissive — no sensitive features disabled"
-
-
-
 
 
 # ============= Function to analyse the Security Header Content-Security-Policy =============

@@ -20,20 +20,20 @@ try:
 
     ## Show the Status Code of the URL
     print("=== Status Code ===")
-    print(f"URL: {r.url} ")
+    print(f"URL: {r.url}")
     print(f"Status Code: {r.status_code}")
 
-    lengthHeaders = len(r.headers)
+    total_headers = len(r.headers)
 
-    print(f"Total of received headers : {lengthHeaders}")
+    print(f"Total of received headers: {total_headers}")
 
     # Showing the Security Headers and giving a Report and Note
-    countSH = 0
+    count = 0
     for s in SECURITY_HEADERS :
         if s in r.headers:
             value = r.headers[s]
             print(f"✅ {s}: {value}")
-            countSH = countSH + 1
+            count += 1
 
             if s in ANALYZERS:
                 grade,message = ANALYZERS[s](value)
@@ -41,7 +41,7 @@ try:
         else :
             print(f"❌ {s}: MISSING")
     
-    print(f"Report : This URL: {URL} has {countSH} out of {len(SECURITY_HEADERS)} Security Headers")
+    print(f"Report: This URL ({URL}) has {count} out of {len(SECURITY_HEADERS)} security headers")
 
 # =============================== Error Handling ======================================================================================================
 

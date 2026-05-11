@@ -1,14 +1,14 @@
 # Header-Scanner
 
-A command-line tool written in Python that audits the HTTP security headers of any website and grades each header based on configuration quality. Inspired by [securityheaders.com](https://securityheaders.com), but built from scratch as a deep-dive learning project into web security and Python development.
+A command-line tool written in Python that audits the HTTP security headers of any website and grades each header based on configuration quality. Inspired by [securityheaders.com](https://securityheaders.com), built from scratch as a deep-dive learning project into web security and Python development.
 
 ## What it does
 
-When you visit a website, the server sends back HTTP headers along with the page content. Some of these headers tell your browser to behave more securely — preventing common attacks like clickjacking, cross-site scripting (XSS), protocol downgrade attacks, and MIME-type sniffing.
+When a browser visits a website, the server sends back HTTP headers along with the page content. Some of these headers tell the browser to behave more defensively, preventing common attacks like clickjacking, cross-site scripting (XSS), protocol downgrade, and MIME-type sniffing.
 
 The catch: even a perfectly secure backend is vulnerable if these headers are missing or misconfigured, because the vulnerability lives in the browser's behavior, not the server code.
 
-This tool sends a request to a URL and:
+This tool sends a request to any URL and:
 
 - Reports whether each of the 6 main security headers is present
 - Analyzes the **value** of each header and grades its configuration quality (A+ to F)
@@ -37,49 +37,68 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Run the scanner
-python scanner.py
+# Run the scanner against any URL
+python scanner.py https://github.com
 ```
 
-The URL is currently set as a constant at the top of `scanner.py`. CLI argument support is on the roadmap.
+## Usage
+
+The scanner accepts a URL as a command-line argument:
+
+```bash
+python scanner.py <url>
+```
+
+Show built-in help:
+
+```bash
+python scanner.py --help
+```
+
+### Examples
+
+```bash
+python scanner.py https://github.com
+python scanner.py https://pypi.org
+python scanner.py https://www.npmjs.com
+```
 
 ## Example output
 
-Running against PyPI:
+Running against GitHub:
 
 ```
 === Status Code ===
-URL: https://pypi.org/
+URL: https://github.com/
 Status Code: 200
-Total of received headers: 17
-✅ Content-Security-Policy: default-src 'none'; script-src 'self' ...
+Total of received headers: 18
+✅ Content-Security-Policy: default-src 'none'; base-uri 'self'; ...
    ↳ Grade: A — Strong script-src configuration
-✅ Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+✅ Strict-Transport-Security: max-age=31536000; includeSubdomains; preload
    ↳ Grade: A+ — Maximum protection (preload-eligible)
 ✅ X-Content-Type-Options: nosniff
    ↳ Grade: A — Correctly configured with 'nosniff'
 ✅ X-Frame-Options: deny
    ↳ Grade: A — It will never be loaded in an iframe
-✅ Permissions-Policy: accelerometer=(),autoplay=(),camera=(),...
-   ↳ Grade: A — Strong defensive policy (10 sensitive features disabled)
-✅ Referrer-Policy: origin-when-cross-origin
+❌ Permissions-Policy: MISSING
+✅ Referrer-Policy: origin-when-cross-origin, strict-origin-when-cross-origin
    ↳ Grade: C — Leaks path on same-origin requests
-Report: This URL has 6 out of 6 Security Headers
+Report: This URL (https://github.com/) has 5 out of 6 security headers
 ```
 
 ## Project structure
 
 ```
 Header-Scanner/
-├── scanner.py          # main entry point — orchestrates the scan
-├── analyzers.py        # the 6 per-header analysis functions
+├── scanner.py          # main entry point — CLI parsing and orchestration
+├── analyzers.py        # the 6 per-header analysis functions + dispatch dictionary
 ├── config.py           # constants (timeouts, header list, thresholds)
 ├── requirements.txt
 ├── README.md
 └── .gitignore
 ```
 
-The architecture follows the principle of **separation of concerns**: configuration is isolated from logic, and each analyzer is a pure function that can be tested independently.
+The architecture follows the **separation of concerns** principle: configuration is isolated from logic, each analyzer is a pure function that can be tested independently, and the main loop dispatches to the right analyzer through a function dictionary — making the tool open for extension without modification.
 
 ## Headers analyzed
 
@@ -162,28 +181,39 @@ Grading focuses on the `script-src` directive (with `default-src` as fallback), 
 | Contains `*` wildcard | D |
 | No `script-src` or `default-src` defined | F |
 
+## Architecture highlights
+
+A few design choices worth noting:
+
+- **Pure analyzer functions** — each `analyze_*` function takes a string and returns a `(grade, message)` tuple. No side effects. Easy to test in isolation.
+- **Dispatch dictionary** — the main loop dispatches to the right analyzer via a `{header_name: function}` dictionary. Adding a new header requires no changes to the main loop, just registering the new function in the dictionary.
+- **Defensive parsing** — handles real-world quirks like duplicated headers, missing components, invalid values, and case-insensitivity.
+- **Layered error handling** — exceptions are caught from most specific (`Timeout`) to broadest (`RequestException`), with helpful messages at each layer.
+
 ## Roadmap
+
+Completed:
 
 - [x] HTTP request handling with proper error management
 - [x] Detection of presence/absence for all 6 security headers
-- [x] Quality analysis for `X-Content-Type-Options`
-- [x] Quality analysis for `X-Frame-Options`
-- [x] Quality analysis for `Referrer-Policy`
-- [x] Quality analysis for `Strict-Transport-Security`
-- [x] Quality analysis for `Permissions-Policy`
-- [x] Quality analysis for `Content-Security-Policy`
+- [x] Quality analysis for all 6 security headers
 - [x] Modular architecture (config / analyzers / scanner)
-- [ ] Refactor analyzer dispatch using a function dictionary
-- [x] Accept URL as a CLI argument (argparse)
+- [x] Function dispatch dictionary refactor
+- [x] CLI support for URL input via argparse
+
+Planned:
+
+- [ ] `--timeout` and `--verbose` CLI options
 - [ ] Support for batch scanning of multiple URLs
 - [ ] JSON and HTML report output formats
-- [/] Unit tests with pytest
+- [ ] Unit tests with pytest
 - [ ] Asynchronous requests for parallel scanning
 
 ## Tech stack
 
 - **Python 3.12**
 - **requests** — HTTP client library
+- **argparse** — built-in CLI argument parsing
 
 ## License
 
