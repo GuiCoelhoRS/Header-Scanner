@@ -191,3 +191,15 @@ def analyze_content_security_policy(value):
         return "B", "script-src contains 'unsafe-eval'"
     
     return "A", "Strong script-src configuration"
+
+
+## Dictionary of Functions =============================================================================================================================================
+# I'm gonna use this to simplify how the main loop looks so it looks cleaner and much smaller
+ANALYZERS = {
+    "X-Content-Type-Options": analyze_x_content_type_options,
+    "X-Frame-Options": analyze_x_frame_options,
+    "Referrer-Policy": analyze_referrer_policy,
+    "Strict-Transport-Security": analyze_strict_transport_security,
+    "Permissions-Policy": analyze_permissions_policy,
+    "Content-Security-Policy": analyze_content_security_policy,
+}

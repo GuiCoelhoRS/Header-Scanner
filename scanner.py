@@ -3,27 +3,9 @@ import argparse
 
 ## Imports for the needed functions ==============================================================================================================================================
 from config import TIMEOUT, SECURITY_HEADERS
-from analyzers import (
-    analyze_x_content_type_options,
-    analyze_x_frame_options,
-    analyze_referrer_policy,
-    analyze_strict_transport_security,
-    analyze_permissions_policy,
-    analyze_content_security_policy,
-)
+from analyzers import ANALYZERS
 
-
-# URLs for Testing the Program (CLI support is the next thing I want to add still have to learn it) =======================================================================
-
-# URL = 'https://github.com/'
-# URL = 'https://site-que-nao-existe-12345.pt/' 
-# URL = 'https://httpstat.us/200?sleep=15000'
-# URL = 'https://example.com/'
-# URL = 'https://pypi.org/'
-# URL = 'https://www.ulusofona.pt/' 
-# URL = 'https://www.bancomontepio.pt/'
-
-## Argument and CLI Support Very Simple for now 
+# Argument and CLI Support ========================================================================================================================================
 parser = argparse.ArgumentParser(
     description="Audit HTTP security headers of a website."
 )
@@ -31,7 +13,6 @@ parser.add_argument("url", help="The URL to scan (e.g. https://github.com)")
 args = parser.parse_args()
 
 URL = args.url
-
 
 # Main Program Loop ==============================================================================================================================================
 try:
@@ -46,7 +27,7 @@ try:
 
     print(f"Total of received headers : {lengthHeaders}")
 
-    # Showing the Security Headers and giving a small Report
+    # Showing the Security Headers and giving a Report and Note
     countSH = 0
     for s in SECURITY_HEADERS :
         if s in r.headers:
@@ -54,45 +35,19 @@ try:
             print(f"✅ {s}: {value}")
             countSH = countSH + 1
 
-            # Report for X-Content-Type-Options
-            if s == "X-Content-Type-Options":
-                grade, message = analyze_x_content_type_options(value)
-                print(f"   ↳ Grade: {grade} — {message}")
-            
-            # Report for X-Frame-Options
-            if s == "X-Frame-Options":
-                grade, message = analyze_x_frame_options(value)
-                print(f"   ↳ Grade: {grade} — {message}")
-
-            # Report for Referrer-Policy
-            if s == "Referrer-Policy":
-                grade, message = analyze_referrer_policy(value)
-                print(f"   ↳ Grade: {grade} — {message}")
-
-            # Report for Strict-Transport-Security
-            if s == "Strict-Transport-Security":
-                grade, message = analyze_strict_transport_security(value)
-                print(f"   ↳ Grade: {grade} — {message}")
-
-            if s == "Permissions-Policy":
-                grade, message = analyze_permissions_policy(value)
-                print(f"   ↳ Grade: {grade} — {message}")
-
-            if s == "Content-Security-Policy":
-                grade, message = analyze_content_security_policy(value)
+            if s in ANALYZERS:
+                grade,message = ANALYZERS[s](value)
                 print(f"   ↳ Grade: {grade} — {message}")
         else :
             print(f"❌ {s}: MISSING")
     
     print(f"Report : This URL: {URL} has {countSH} out of {len(SECURITY_HEADERS)} Security Headers")
 
-
 # =============================== Error Handling ======================================================================================================
 
 # This takes care of URLS that take a long time to answer to the GET
 except requests.exceptions.Timeout as e:
     print(f"Timeout when trying to access {URL}: the website didn't answer in {TIMEOUT}s")
-
 
 # This except block should always take care of Connection Error Problems and give us a Report of what happened
 except requests.exceptions.ConnectionError as e:
